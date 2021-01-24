@@ -23,10 +23,8 @@ GRParcels=GRParcels.__geo_interface__
 database = dbconfig()
 table = r"walkscore"
 walkscore = pd.read_sql(table, database)
-print(walkscore[:5])
-
-
 dff = walkscore.copy(deep = True)
+
 
 # ------------------------------------------------------------------------------
 # App layout
@@ -82,37 +80,36 @@ def update_graph(option_score):
     fig.update_layout(margin={'r':0,'t':0,'l':0,'b':0})
 
 
+# # Plotly Express
+# fig = px.choropleth(
+#     data_frame=dff,
+#     locationmode='USA-states',
+#     locations='original_apn',
+#     scope="usa",
+#     color='walkscore',
+#     hover_data=['original_apn', 'walkscore'],
+#     color_continuous_scale=px.colors.sequential.YlOrRd,
+#     labels={'walkscore': 'walkscore'},
+#     template='plotly_dark'
+# )
 
-#     # Plotly Express
-#     fig = px.choropleth(
-#         data_frame=dff,
+## Plotly Graph Objects (GO)
+# fig = go.Figure(
+#     data=[go.Choropleth(
 #         locationmode='USA-states',
-#         locations='original_apn',
-#         scope="usa",
-#         color='walkscore',
-#         hover_data=['original_apn', 'walkscore'],
-#         color_continuous_scale=px.colors.sequential.YlOrRd,
-#         labels={'walkscore': 'walkscore'},
-#         template='plotly_dark'
-#     )
-
-    # Plotly Graph Objects (GO)
-    # fig = go.Figure(
-    #     data=[go.Choropleth(
-    #         locationmode='USA-states',
-    #         locations=dff['state_code'],
-    #         z=dff["Pct of Colonies Impacted"].astype(float),
-    #         colorscale='Reds',
-    #     )]
-    # )
-    #
-    # fig.update_layout(
-    #     title_text="Bees Affected by Mites in the USA",
-    #     title_xanchor="center",
-    #     title_font=dict(size=24),
-    #     title_x=0.5,
-    #     geo=dict(scope='usa'),
-    # )
+#         locations=dff['state_code'],
+#         z=dff["Pct of Colonies Impacted"].astype(float),
+#         colorscale='Reds',
+#     )]
+# )
+#
+# fig.update_layout(
+#     title_text="Bees Affected by Mites in the USA",
+#     title_xanchor="center",
+#     title_font=dict(size=24),
+#     title_x=0.5,
+#     geo=dict(scope='usa'),
+# )
 
     return container, fig
 # -

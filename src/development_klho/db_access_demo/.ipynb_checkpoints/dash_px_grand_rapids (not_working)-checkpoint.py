@@ -20,13 +20,61 @@ GRParcels=geopandas.read_file('City_of_grand_rapids_parcels.shp')
 GRParcels=GRParcels.to_crs('EPSG:4326')
 GRParcels=GRParcels.__geo_interface__
 
+
+# +
+# Convert json into a dataframe to be merged with the dataframe
+a_df = pd.json_normalize(GRParcels['features'])
+
+# Drop tables that will not be needed in the data frame
+a_df.drop(columns = ['id', 
+                     'type', 
+                     'bbox', 
+                     'geometry.type', 
+                     'geometry.coordinates',
+                     'properties.SHAPE_len', 
+                     'geometry.coordinates',
+                     'properties.Govt_Unit',
+                     'properties.PPN',
+                     'properties.Prop_Class', 
+                     'properties.School_Dis'
+                    ], 
+          inplace = True)
+
+# Remove the prefix from the col labels
+a_df.rename(columns = {'properties.PNUM':'APN', 
+                       'properties.Address':'Address',
+                       'properties.City':'City',
+                       'properties.Zip_Code':'Zip',
+                       'properties.SHAPE_area':'Area',
+                      }, inplace = True)
+
+
+# +
+# Read in the data from database and clean-up
 database = dbconfig()
 table = r"walkscore"
-walkscore = pd.read_sql(table, database)
-print(walkscore[:5])
+condition = r" where walkscore > 0"
+# condition = ""
+
+sql = f'select * from {table}{condition}'
+walkscore = pd.read_sql(sql, database)
+walkscore.rename(columns={'original_apn':'APN'}, inplace = True)
+
+# Remove scores of zero
+walk_df= walkscore.copy(deep = True)
+# -
 
 
-dff = walkscore.copy(deep = True)
+# Merge the plot attributes to the dataframe
+details = pd.concat([walk_df, a_df], axis = 1, join = 'inner').copy(deep=True)
+
+walk_df
+
+
+
+# +
+# details_df.loc[details_df.walkscore >= 0]
+# -
 
 # ------------------------------------------------------------------------------
 # App layout
@@ -56,43 +104,39 @@ app.layout = html.Div([
     html.Br(),
     dcc.Graph(id='city_map', figure={})])
 
+
 # +
 # ------------------------------------------------------------------------------
 # Connect the Plotly graphs with Dash Components
-
-fig=px.choropleth_mapbox(dff,geojson=GRParcels,color='walkscore', 
-                         locations='original_apn',featureidkey='properties.PNUM',
-                         center={'lat':42.9634,'lon':-85.6681},
-                         mapbox_style="carto-positron", zoom=20)
-
-fig.update_layout(margin={'r':0,'t':0,'l':0,'b':0})
-
-
 @app.callback(
     [Output(component_id='output_container', component_property='children'),
      Output(component_id='city_map', component_property='figure')],
-    [Input(component_id='select_score', component_property='value')]
-)
+    [Input(component_id='select_score', component_property='value')])
 
 def update_graph(option_score):
     print(option_score)
     print(type(option_score))
 
     container = "The min score chosen was: {}".format(option_score)
+    dff = walkscore.copy(deep=True)
+    dff = dff[dff.walkscore > option_score]
 
-    dff = walkscore.copy(deep = True)
-    dff = dff[dff.walkscore >= option_score]
-
-# Define initial graph - the update will not include the centre and zoom
-
-    fig=px.choropleth_mapbox(dff,geojson=GRParcels,color='walkscore', 
-                             locations='original_apn',featureidkey='properties.PNUM',
-                             mapbox_style="carto-positron")
-
+    # plot dff data
+    fig=px.choropleth_mapbox(dff,
+                             geojson=GRParcels,
+                             color='walkscore',
+                             locations='APN',
+                             featureidkey = 'properties.PNUM',
+#                              hover_data = ['Address',
+#                                            'Area'], 
+                             center= {'lat':42.9634,'lon':-85.6681}, 
+                             mapbox_style="carto-positron", zoom=15)
+    
     fig.update_layout(margin={'r':0,'t':0,'l':0,'b':0})
 
-
     return container, fig
+
+
 # -
 
 # ------------------------------------------------------------------------------
