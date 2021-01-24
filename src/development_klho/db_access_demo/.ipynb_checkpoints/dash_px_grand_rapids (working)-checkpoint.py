@@ -68,9 +68,8 @@ walk_df= walkscore.copy(deep = True)
 # Merge the plot attributes to the dataframe
 details = pd.concat([walk_df, a_df], axis = 1, join = 'inner').copy(deep=True)
 
-walk_df
-
-
+details = details.iloc[:,1:]
+details
 
 # +
 # details_df.loc[details_df.walkscore >= 0]
@@ -118,18 +117,22 @@ def update_graph(option_score):
     print(type(option_score))
 
     container = "The min score chosen was: {}".format(option_score)
-    dff = walkscore.copy(deep=True)
-    dff = dff[dff.walkscore > option_score]
+    
+    dff = details.copy(deep=True)
+    selection = dff.walkscore > option_score
+    dff = dff[selection]
 
-    # plot dff data
+    # plot dff data\
     fig=px.choropleth_mapbox(dff,
                              geojson=GRParcels,
                              color='walkscore',
+                             opacity=0.2,
                              locations='APN',
                              featureidkey = 'properties.PNUM',
-#                              hover_data = ['Address',
-#                                            'Area'], 
                              center= {'lat':42.9634,'lon':-85.6681}, 
+                             hover_data = ['APN',
+                                           'Address', 
+                                           'Area'],
                              mapbox_style="carto-positron", zoom=15)
     
     fig.update_layout(margin={'r':0,'t':0,'l':0,'b':0})
@@ -142,5 +145,9 @@ def update_graph(option_score):
 # ------------------------------------------------------------------------------
 if __name__ == '__main__':
     app.run_server(debug=True, use_reloader=False)
+
+#                              hover_data = ['Address',
+#                                            'Area'], 
+walkscore
 
 

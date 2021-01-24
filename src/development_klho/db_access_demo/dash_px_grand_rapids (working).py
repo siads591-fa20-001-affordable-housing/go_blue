@@ -53,8 +53,8 @@ a_df.rename(columns = {'properties.PNUM':'APN',
 # Read in the data from database and clean-up
 database = dbconfig()
 table = r"walkscore"
-condition = r" where walkscore > 0"
-# condition = ""
+# condition = r" where walkscore > 0"
+condition = ""
 
 sql = f'select * from {table}{condition}'
 walkscore = pd.read_sql(sql, database)
@@ -66,14 +66,15 @@ walk_df= walkscore.copy(deep = True)
 
 
 # Merge the plot attributes to the dataframe
-details = pd.concat([walk_df, a_df], axis = 1, join = 'inner').copy(deep=True)
+# details = pd.concat([walk_df, a_df], axis = 1, join = 'inner').copy(deep=True)
+details = walk_df.merge(a_df, on = "APN", how = "outer")
 
-walk_df
-
-
+# details = details.iloc[:,1:]
+details
 
 # +
-# details_df.loc[details_df.walkscore >= 0]
+# details.drop_duplicates(subset=['APN'], inplace = True)
+# details.duplicated(subset=['APN']).sum()
 # -
 
 # ------------------------------------------------------------------------------
@@ -118,19 +119,23 @@ def update_graph(option_score):
     print(type(option_score))
 
     container = "The min score chosen was: {}".format(option_score)
-    dff = walkscore.copy(deep=True)
-    dff = dff[dff.walkscore > option_score]
+    
+    dff = details.copy(deep=True)
+    selection = dff.walkscore > option_score
+    dff = dff[selection]
 
-    # plot dff data
+    # plot dff data\
     fig=px.choropleth_mapbox(dff,
                              geojson=GRParcels,
                              color='walkscore',
+                             opacity=0.2,
                              locations='APN',
                              featureidkey = 'properties.PNUM',
-#                              hover_data = ['Address',
-#                                            'Area'], 
                              center= {'lat':42.9634,'lon':-85.6681}, 
-                             mapbox_style="carto-positron", zoom=15)
+                             hover_data = ['APN',
+                                           'Address', 
+                                           'Area'],
+                             mapbox_style="carto-positron", zoom=5)
     
     fig.update_layout(margin={'r':0,'t':0,'l':0,'b':0})
 
