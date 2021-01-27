@@ -52,7 +52,7 @@ a_df.rename(columns = {'properties.PNUM':'APN',
 # +
 # Read in the data from database and clean-up
 database = dbconfig()
-table = r"walkscore"
+table = r"walkscore_old"
 # condition = r" where walkscore > 0"
 condition = ""
 
