@@ -2,3 +2,6 @@
 src/alan/All Municipalities Geometry and Municipality.geojson-20210127T141252Z-001.zip
 *.zip
 *.shp
+doc/.DS_Store
+src/.DS_Store
+src/alan/.DS_Store
