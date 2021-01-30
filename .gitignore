@@ -5,3 +5,10 @@ src/alan/All Municipalities Geometry and Municipality.geojson-20210127T141252Z-0
 doc/.DS_Store
 src/.DS_Store
 src/alan/.DS_Store
+src/grand_rapids/City_of_Grand_Rapids_Parcels.cpg
+src/grand_rapids/City_of_Grand_Rapids_Parcels.dbf
+src/grand_rapids/City_of_Grand_Rapids_Parcels.json
+src/grand_rapids/City_of_Grand_Rapids_Parcels.prj
+src/grand_rapids/City_of_Grand_Rapids_Parcels.sbn
+src/grand_rapids/City_of_Grand_Rapids_Parcels.sbx
+src/grand_rapids/City_of_Grand_Rapids_Parcels.shx
